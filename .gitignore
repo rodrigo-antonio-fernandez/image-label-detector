@@ -124,6 +124,9 @@ uploads/
 # yarn.lock
 # pnpm-lock.yaml
 
+# DEBUG
+/src/debug-images
+
 # Documentation build
 docs/_build/
 

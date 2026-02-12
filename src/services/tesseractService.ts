@@ -48,7 +48,7 @@ export class TesseractService {
     // Simple round-robin
     const worker = this.workerPool[Math.floor(Math.random() * this.workerPool.length)];
     if (!worker) {
-      throw new Error('No worker available in the pool');
+      throw new Error('No hay workers disponibles en el pool');
     }
     return worker;
   }
@@ -109,13 +109,53 @@ export class TesseractService {
       Logger.info(`OCR completado en ${processingTime}ms`, {
         wordsDetected: words.length,
         confidence: result.data.confidence.toFixed(2),
+        textLength: result.data.text.length,
       });
+
+      Logger.debug('Texto detectado (primeros 500 caracteres):', result.data.text.substring(0, 500));
 
       return ocrResult;
     } catch (error) {
       Logger.error('Error en reconocimiento OCR', error);
       throw error;
     }
+  }
+
+  /**
+   * Realiza OCR en múltiples variantes y selecciona el mejor resultado
+   */
+  static async recognizeTextMultiVariant(imageBuffers: Buffer[]): Promise<OCRResult> {
+    Logger.info(`Procesando ${imageBuffers.length} variantes de imagen`);
+
+    const results = await Promise.all(
+      imageBuffers.map((buffer, index) => 
+        this.recognizeText(buffer).catch((error) => {
+          Logger.warn(`Error en variante ${index}`, error);
+          return null;
+        })
+      )
+    );
+
+    // Filtrar resultados válidos
+    const validResults = results.filter((r): r is OCRResult => r !== null);
+
+    if (validResults.length === 0) {
+      throw new Error('No se pudo procesar ninguna variante de la imagen');
+    }
+
+    // Seleccionar el mejor resultado (más palabras detectadas con buena confianza)
+    const bestResult = validResults.reduce((best, current) => {
+      const bestScore = best.words.length * (best.confidence / 100);
+      const currentScore = current.words.length * (current.confidence / 100);
+      return currentScore > bestScore ? current : best;
+    });
+
+    Logger.info('Mejor resultado seleccionado', {
+      wordsDetected: bestResult.words.length,
+      confidence: bestResult.confidence.toFixed(2),
+    });
+
+    return bestResult;
   }
 
   /**

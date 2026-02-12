@@ -1,14 +1,18 @@
 {
   "name": "image-label-detector",
   "version": "1.0.0",
-  "description": "",
+  "description": "Servicio de detección de etiquetas de productos usando OCR",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "nodemon --exec ts-node src/index.ts",
+    "test": "node src/scripts/test-single-image.js",
+    "test:direct": "node src/scripts/test-direct-image.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": ["ocr", "tesseract", "label-detection"],
+  "author": "Rodrigo Fernández González",
+  "license": "MIT",
   "dependencies": {
     "axios": "^1.13.5",
     "dotenv": "^17.2.4",
