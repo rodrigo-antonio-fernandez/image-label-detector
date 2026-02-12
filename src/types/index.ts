@@ -1,3 +1,5 @@
+import { Bbox } from 'tesseract.js';
+
 export interface ProductImage {
   filePixelHeight: number;
   filePixelWidth: number;
@@ -9,24 +11,18 @@ export interface ProductImage {
   _id: string;
   canBeFix?: boolean;
   isValid?: boolean;
-  correctedImgRef?: string;
-  isRequiredForOffer?: boolean;
-  main: boolean;  
+}
+
+export interface OCRWord {
+  text: string;
+  confidence: number;
+  bbox: Bbox;
 }
 
 export interface OCRResult {
   text: string;
   confidence: number;
-  words: Array<{
-    text: string;
-    confidence: number;
-    bbox: {
-      x0: number;
-      y0: number;
-      x1: number;
-      y1: number;
-    };
-  }>;
+  words: OCRWord[];
 }
 
 export interface TextDensityAnalysis {
